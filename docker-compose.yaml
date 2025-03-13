@@ -7,10 +7,16 @@ services:
     image: simagix/grafana-ftdc:latest
     hostname: grafana-ftdc
     ports:
-      - "3030:3000"
+      - "3000:3000"
     environment:
       GF_INSTALL_PLUGINS: simpod-json-datasource
-
+      GF_RENDERING_SERVER_URL: http://renderer:8081/render
+      GF_RENDERING_CALLBACK_URL: http://grafana-ftdc:3000/
+      GF_LOG_FILTERS: rendering:debug
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    ports:
+      - "3031:8081"
   ftdc:
     image: simagix/ftdc:latest
     hostname: ftdc
@@ -19,3 +25,8 @@ services:
     volumes:
       - ./diagnostic.data:/diagnostic.data
     command: /ftdc_json /diagnostic.data
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
